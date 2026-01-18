@@ -1,11 +1,11 @@
 {
 	"id": "todo-plugin",
-	"name": "TODO Plugin",
+	"name": "Custom TODO Plugin",
 	"version": "1.0.0",
 	"minAppVersion": "0.15.0",
-	"description": "Demonstrates some of the capabilities of the Obsidian API.",
-	"author": "Obsidian",
-	"authorUrl": "https://obsidian.md",
-	"fundingUrl": "https://obsidian.md/pricing",
+	"description": "Creates a new tab for TODOs, as marked by custom text marker.",
+	"author": "Amelithic",
+	"authorUrl": "https://github.com/Amelithic",
+	"fundingUrl": "https://github.com/Amelithic",
 	"isDesktopOnly": false
 }
