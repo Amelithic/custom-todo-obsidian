@@ -16,6 +16,13 @@ This is a custom TODO plugin for Obisidian, which compiles links to all files co
 
 ---
 
+### Screenshots
+
+Example view of plugin:
+<img width="1919" height="1136" alt="image" src="https://github.com/user-attachments/assets/7f6b6d48-4c21-4296-99aa-21e0d534c756" />
+
+---
+
 ### Future Features
 No features below are guaranteed.
 
