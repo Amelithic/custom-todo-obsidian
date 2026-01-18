@@ -1,17 +1,12 @@
 /* eslint-disable obsidianmd/ui/sentence-case */
 import TodoPlugin from "main";
-import { ItemView, TFile, WorkspaceLeaf} from "obsidian";
+import { ItemView, WorkspaceLeaf} from "obsidian";
 
 export const TODO_VIEW_TYPE = "todo-view";
 
-export interface TodoItem {
-    text: string;
-    file: TFile;
-    line: number;
-}
-
 export class TodoView extends ItemView {
     plugin: TodoPlugin;
+    private refreshCallback: () => void;
 
     constructor(leaf: WorkspaceLeaf, plugin: TodoPlugin) {
         super(leaf);
@@ -31,59 +26,34 @@ export class TodoView extends ItemView {
     }
 
     async onOpen() {
+        //register refresh
+        this.refresh = this.refresh.bind(this);
+        this.refreshCallback = () => { void this.refresh(); }; //store callback for later
+        this.plugin.registerRefreshCallback(this.refreshCallback);
+
+        //initial refresh / load UI
+        void this.refresh();
+    }
+
+    async onClose() {
+        this.plugin.unregisterRefreshCallback(this.refreshCallback);
+    }
+
+    async refresh() {
         const container = this.containerEl.children[1];
+        if (!container) return;
+
         let currentTodoMarker = this.plugin.settings.todoMarker;
         container?.empty();
         container?.createEl("h2", { text: "My Todo View" });
         container?.createEl("p", { text: currentTodoMarker});
 
-        let todos = await this.scanForTodo();
+        let todos = await this.plugin.scanForTodo();
         const todoDiv = container?.createDiv();
         if (todos) {
             for (let todo of todos) {
                 todoDiv?.createEl("p", { text : todo.text });
             }
         }
-    
-    }
-
-    async onClose() {
-        // cleanup if needed
-    }
-
-    async scanForTodo() {
-		//get settings marker value
-		const markers = this.plugin.settings.todoMarker
-            .split(',')
-            .map(m => m.trim()) //remove trailing spaces for each
-            .filter(m => m.length > 0);
-		const files = this.app.vault.getMarkdownFiles();
-
-		let todos: TodoItem[] = []; //blank TodoItem array
-
-		for (const file of files) {
-			const content = await this.app.vault.read(file); //files content
-            const lines = content.split("\n");
-
-            //scan each line
-            lines.forEach((line, index) => {
-                for (let marker of markers) {
-                    if (line.includes(marker)) {
-                        todos.push({
-                            text: line.trim(),
-                            file,
-                            line: index + 1, // human-readable line numbers
-                        });
-                    }
-                }
-                
-            });
-	    }
-
-        console.log("Markers:", markers);
-        console.log("Files scanned:", files.length);
-        console.log("Todos found:", todos);
-
-        return todos;
     }
 }
