@@ -1,5 +1,5 @@
 /* eslint-disable obsidianmd/ui/sentence-case */
-import {addIcon, App, Editor, MarkdownView, Modal, Notice, Plugin, TFile} from 'obsidian';
+import {addIcon, Plugin, TFile} from 'obsidian';
 import {DEFAULT_SETTINGS, TodoPluginSettings, TodoSettingsTab} from "./settings";
 import { TODO_VIEW_TYPE, TodoView } from "./TodoView";
 
