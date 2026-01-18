@@ -1,6 +1,6 @@
 /* eslint-disable obsidianmd/ui/sentence-case */
-import TodoPlugin from "main";
-import { ItemView, WorkspaceLeaf} from "obsidian";
+import TodoPlugin, { TodoItem } from "main";
+import { ItemView, MarkdownView, WorkspaceLeaf} from "obsidian";
 
 export const TODO_VIEW_TYPE = "todo-view";
 
@@ -43,17 +43,52 @@ export class TodoView extends ItemView {
         const container = this.containerEl.children[1];
         if (!container) return;
 
-        let currentTodoMarker = this.plugin.settings.todoMarker;
+        const markers = this.plugin.settings.todoMarker
+                    .split(',')
+                    .map(m => m.trim()) //remove trailing spaces for each
+                    .filter(m => m.length > 0);
         container?.empty();
-        container?.createEl("h2", { text: "My Todo View" });
-        container?.createEl("p", { text: currentTodoMarker});
+        container?.createEl("h2", { text: "Current TODOs:" });
+
+        //current markers text
+        let markerText = "Currently searching for TODOs with these markers: ";
+        for (let i=0; i < markers.length; i++) {
+            markerText += markers[i];
+
+            if (markers.length > i+1) markerText += ", ";
+
+        }
+        container?.createEl("p", { text: markerText});
+        container?.createEl("hr");
 
         let todos = await this.plugin.scanForTodo();
-        const todoDiv = container?.createDiv();
+        const todoDiv = container?.createDiv({cls: "todoDiv"});
         if (todos) {
             for (let todo of todos) {
-                todoDiv?.createEl("p", { text : todo.text });
+                let todoElDiv = todoDiv?.createDiv();
+                todoElDiv?.createEl("h4", { cls: "todoItemTitle", text : todo.text });
+                todoElDiv?.createEl("p", { cls: "todoItemLocation", text : todo.file.name+" -> Line: "+todo.line });
+
+                todoElDiv.onclick = () => {
+                    void this.openTodoInEditor(todo);
+                }
             }
+        }
+    }
+
+    async openTodoInEditor(todo: TodoItem) {
+        const { file, line } = todo;
+
+        // Open the file in the main workspace
+        const leaf = this.app.workspace.getLeaf(true);
+        await leaf.openFile(file);
+
+        // Now move cursor to the line
+        const view = this.app.workspace.getActiveViewOfType(MarkdownView);
+        if (view) {
+            const editor = view.editor;
+            editor.setCursor({ line: line - 1, ch: 0 });
+            editor.scrollIntoView({ from: { line: line - 1, ch: 0 }, to: { line: line - 1, ch: 0 } }, true);
         }
     }
 }

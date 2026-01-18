@@ -1,6 +1,6 @@
 {
 	"name": "custom-todo-obsidian",
-	"version": "1.0.0",
+	"version": "1.5.0",
 	"description": "A custom TODO plugin for Obsidian.",
 	"main": "main.js",
 	"type": "module",
